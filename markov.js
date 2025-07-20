@@ -8,6 +8,7 @@ class MarkovMachine {
   constructor(text) {
     let words = text.split(/[ \r\n]+/);
     this.words = words.filter(c => c !== "");
+    this.chains = {};
     this.makeChains();
   }
 
@@ -19,7 +20,6 @@ class MarkovMachine {
    */
 
   makeChains() {
-    this.chains = {};
     for (let i = 0; i < this.words.length; i++) {
 
       let word = this.words[i];
@@ -41,9 +41,41 @@ class MarkovMachine {
   }
 
 
-  /** return random text from chains */
+  /** 
+   * return random text from chains 
+   */
 
   makeText(numWords = 100) {
-    // TODO
+    let outputText = [];
+    let startWords = Object.keys(this.chains).filter(key => this.chains[key].length > 0);
+    let word = startWords[Math.floor(Math.random() * startWords.length)];
+    outputText.push(word);
+
+    while (outputText.length < numWords) {
+      let nextWords = this.chains[word];
+      if (!nextWords || nextWords.length === 0 || word === null) {
+        word = startWords[Math.floor(Math.random() * startWords.length)];
+        outputText.push(word);
+        continue;
+      }
+      word = nextWords[Math.floor(Math.random() * nextWords.length)];
+      if (word !== null) {
+        // Add the word to the output text
+        outputText.push(word);
+      }
+
+    }
+
+    return outputText.join(" ");
   }
-}
+
+} // End of MarkovMachine class
+
+module.exports = { MarkovMachine };
+
+// Example usage for testing
+// if (require.main === module) {
+//   let mm = new MarkovMachine("the quick brown fox jumps over the lazy brown dog");
+//   console.log(mm);
+//   console.log(mm.makeText(15));
+//}
